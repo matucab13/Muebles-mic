@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muebles MIC — Sistema de Gestión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #F7F3EE;
+      --warm-white: #FDFBF8;
+      --charcoal: #1C1C1E;
+      --mid: #5A5A5A;
+      --subtle: #A8A8A8;
+      --border: #E2DBD3;
+      --accent: #C17D4B;
+      --accent-light: #F0E0D0;
+      --accent-dark: #9A5E32;
+      --success: #4A7C59;
+      --danger: #C0392B;
+      --warning: #D4801A;
+      --sidebar-w: 240px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: #ffffff;
+      border-right: 2px solid #E2DBD3;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 22px 20px 16px;
+      border-bottom: 3px solid var(--accent);
+      background: #ffffff;
+    }
+
+    .sidebar-logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #1C1C1E;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    .sidebar-logo span {
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 10px 0;
+    }
+
+    .nav-section {
+      padding: 14px 16px 4px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #AAAAAA;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+      color: #222222;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      margin: 1px 0;
+    }
+
+    .nav-item:hover {
+      color: var(--accent-dark);
+      background: #FFF5EE;
+      border-left-color: var(--accent);
+    }
+
+    .nav-item.active {
+      color: var(--accent-dark);
+      background: #FDEEE3;
+      border-left-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .nav-icon { font-size: 15px; width: 22px; text-align: center; flex-shrink: 0; }
+
+    /* MAIN */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .topbar-sub {
+      font-size: 12px;
+      color: var(--subtle);
+      margin-top: 2px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--mid);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--cream); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid #e0b0ab;
+    }
+    .btn-danger:hover { background: #fdf0ef; }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* CONTENT */
+    .content {
+      padding: 32px;
+      max-width: 1200px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 20px;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--charcoal);
+      font-family: 'Playfair Display', serif;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--subtle);
+      margin-top: 4px;
+    }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--subtle);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--charcoal);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--cream); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-tela {
+      background: #E8F4E8;
+      color: #2D6A4F;
+    }
+
+    .badge-activo {
+      background: #E8F4E8;
+      color: #2D6A4F;
+    }
+
+    .badge-inactivo {
+      background: #F4E8E8;
+      color: #6A2D2D;
+    }
+
+    .color-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.1);
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--warm-white);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--subtle);
+    }
+
+    /* FORM */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mid);
+      letter-spacing: 0.3px;
+    }
+
+    input, select, textarea {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--charcoal);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* SEARCH */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 9px 14px 9px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A8A8A8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E") no-repeat 12px center;
+      outline: none;
+      color: var(--charcoal);
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--subtle);
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-title { font-size: 16px; font-weight: 600; color: var(--mid); margin-bottom: 8px; }
+    .empty-sub { font-size: 13.5px; }
+
+    /* SECTIONS */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* PRICE TAG */
+    .price { font-weight: 600; color: var(--charcoal); }
+    .price-cost { font-size: 12px; color: var(--subtle); }
+
+    /* ALERT */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .alert-success { background: #E8F4E8; color: #1A5C35; border: 1px solid #B8DFC8; }
+    .alert-danger { background: #F4E8E8; color: #5C1A1A; border: 1px solid #DFB8B8; }
+
+    /* BULK PRICE */
+    .bulk-price-box {
+      background: var(--accent-light);
+      border: 1px solid #D4A882;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .bulk-price-box h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-dark);
+      margin-bottom: 12px;
+    }
+
+    .bulk-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--subtle);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s;
+    }
+
+    .tab:hover { color: var(--charcoal); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+    /* DASHBOARD ITEMS */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .quick-action {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .quick-action:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(193,125,75,0.1);
+    }
+
+    .quick-action .icon { font-size: 28px; margin-bottom: 8px; }
+    .quick-action .label { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+    .quick-action .sub { font-size: 11.5px; color: var(--subtle); margin-top: 2px; }
+
+    /* HAMBURGER BUTTON */
+    #menu-toggle {
+      display: none;
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 300;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    #menu-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 150;
+    }
+
+    @media (max-width: 768px) {
+      #menu-toggle { display: flex; }
+      #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 200;
+        width: 260px;
+      }
+      #sidebar.open { transform: translateX(0); }
+      #sidebar-overlay.open { display: block; }
+      #main { margin-left: 0; }
+      .topbar { padding-left: 64px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .quick-actions { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<!-- HAMBURGER -->
+<button id="menu-toggle" onclick="toggleMenu()">
+  <span></span><span></span><span></span>
+</button>
+<div id="sidebar-overlay" onclick="closeMenu()"></div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>MIC</h1>
+    <span>Gestión</span>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <span class="nav-icon">🏠</span><span>Inicio</span>
+    </div>
+
+    <div class="nav-section">Catálogo</div>
+    <div class="nav-item" onclick="showSection('productos')">
+      <span class="nav-icon">🛏️</span><span>Productos</span>
+    </div>
+    <div class="nav-item" onclick="showSection('servicios')">
+      <span class="nav-icon">🚚</span><span>Servicios</span>
+    </div>
+
+    <div class="nav-section">Comercial</div>
+    <div class="nav-item" onclick="showSection('clientes')">
+      <span class="nav-icon">👥</span><span>Clientes</span>
+    </div>
+    <div class="nav-item" onclick="showSection('ventas')">
+      <span class="nav-icon">💰</span><span>Ventas</span>
+    </div>
+
+    <div class="nav-section">Finanzas</div>
+    <div class="nav-item" onclick="showSection('ingresos')">
+      <span class="nav-icon">📊</span><span>Ingresos / Egresos</span>
+    </div>
+
+    <div class="nav-section">Análisis</div>
+    <div class="nav-item" onclick="showSection('analisis')">
+      <span class="nav-icon">📈</span><span>Estadísticas</span>
+    </div>
+    <div class="nav-item" onclick="showSection('tendencias')">
+      <span class="nav-icon">✨</span><span>Tendencias IA</span>
+    </div>
+
+    <div class="nav-section">Sistema</div>
+    <div class="nav-item" onclick="showSection('importar')">
+      <span class="nav-icon">📥</span><span>Importar datos</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">Inicio</div>
+      <div class="topbar-sub" id="topbar-sub">Bienvenido a Muebles MIC</div>
+    </div>
+    <div id="topbar-action"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- ALERT -->
+    <div id="global-alert" style="display:none"></div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="section-dashboard" class="section active">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Productos</div>
+          <div class="stat-value" id="stat-productos">0</div>
+          <div class="stat-sub">En catálogo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Clientes</div>
+          <div class="stat-value" id="stat-clientes">0</div>
+          <div class="stat-sub">Registrados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ventas</div>
+          <div class="stat-value" id="stat-ventas">0</div>
+          <div class="stat-sub">Total realizadas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Facturado</div>
+          <div class="stat-value" id="stat-facturado">$0</div>
+          <div class="stat-sub">Este mes</div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <div class="quick-action" onclick="showSection('productos'); openModal('modal-producto')">
+          <div class="icon">🛏️</div>
+          <div class="label">Nuevo producto</div>
+          <div class="sub">Agregar al catálogo</div>
+        </div>
+        <div class="quick-action" onclick="showSection('clientes'); openModal('modal-cliente')">
+          <div class="icon">👤</div>
+          <div class="label">Nuevo cliente</div>
+          <div class="sub">Registrar cliente</div>
+        </div>
+        <div class="quick-action" onclick="showSection('ventas'); openModal('modal-venta')">
+          <div class="icon">🧾</div>
+          <div class="label">Nueva venta</div>
+          <div class="sub">Registrar pedido</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Últimas ventas</div>
+        <div id="dashboard-ventas-recientes">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">Sin ventas aún</div>
+            <div class="empty-sub">Las ventas registradas aparecerán aquí</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PRODUCTOS ===== -->
+    <div id="section-productos" class="section">
+      <div class="bulk-price-box">
+        <h3>⚡ Actualización masiva de precios</h3>
+        <div class="bulk-row">
+          <select id="bulk-tipo" style="width:180px">
+            <option value="venta">Precio de venta</option>
+            <option value="costo">Precio de costo</option>
+            <option value="ambos">Ambos precios</option>
+          </select>
+          <input type="number" id="bulk-porcentaje" placeholder="% de aumento" style="width:160px" min="0" max="999" step="0.1" />
+          <button class="btn btn-primary" onclick="aplicarAumentoMasivo()">Aplicar aumento</button>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" class="search-input" id="search-producto" placeholder="Buscar por nombre, tela, color..." oninput="renderProductos()" />
+        <button class="btn btn-primary" onclick="openModal('modal-producto')">+ Nuevo producto</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Medida</th>
+                <th>Tela / Color</th>
+                <th>Stock</th>
+                <th>P. Costo</th>
+                <th>P. Venta</th>
+                <th>Margen</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-productos">
+              <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🛏️</div><div class="empty-title">Sin productos</div><div class="empty-sub">Hacé clic en "Nuevo producto" para agregar</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SERVICIOS ===== -->
+    <div id="section-servicios" class="section">
+      <div class="search-bar">
+        <input type="text" class="search-input" id="search-servicio" placeholder="Buscar servicio..." oninput="renderServicios()" />
+        <button class="btn btn-primary" onclick="openModal('modal-servicio')">+ Nuevo servicio</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Servicio</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-servicios">
+              <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🚚</div><div class="empty-title">Sin servicios</div><div class="empty-sub">Agregá flete u otros servicios</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CLIENTES ===== -->
+    <div id="section-clientes" class="section">
+      <div class="search-bar">
+        <input type="text" class="search-input" id="search-cliente" placeholder="Buscar por nombre, DNI, ciudad..." oninput="renderClientes()" />
+        <button class="btn btn-primary" onclick="openModal('modal-cliente')">+ Nuevo cliente</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>DNI</th>
+                <th>Ciudad</th>
+                <th>Provincia</th>
+                <th>Compras</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-clientes">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Sin clientes</div><div class="empty-sub">Registrá tu primer cliente</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VENTAS ===== -->
+    <div id="section-ventas" class="section">
+      <div class="search-bar">
+        <input type="text" class="search-input" id="search-venta" placeholder="Buscar por cliente o producto..." oninput="renderVentas()" />
+        <button class="btn btn-primary" onclick="openModal('modal-venta')">+ Nueva venta</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Servicio</th>
+                <th>Descuento</th>
+                <th>Seña</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-ventas">
+              <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">Sin ventas</div><div class="empty-sub">Registrá tu primera venta</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INGRESOS / EGRESOS ===== -->
+    <div id="section-ingresos" class="section">
+      <div class="stats-row" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-card">
+          <div class="stat-label">Ingresos totales</div>
+          <div class="stat-value" id="total-ingresos" style="color:var(--success)">$0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Egresos totales</div>
+          <div class="stat-value" id="total-egresos" style="color:var(--danger)">$0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Balance</div>
+          <div class="stat-value" id="balance-total">$0</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" class="search-input" id="search-movimiento" placeholder="Buscar movimiento..." oninput="renderMovimientos()" />
+        <button class="btn btn-primary" onclick="openModal('modal-movimiento')">+ Nuevo movimiento</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Concepto</th>
+                <th>Monto</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tabla-movimientos">
+              <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Sin movimientos</div><div class="empty-sub">Registrá ingresos y egresos</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ANÁLISIS ===== -->
+    <div id="section-analisis" class="section">
+      <div class="card">
+        <div class="card-title">🏆 Top 10 ciudades con más ventas</div>
+        <div id="ranking-ciudades"><div class="empty-state"><div class="empty-sub">Sin datos suficientes aún</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🛏️ Productos más vendidos</div>
+        <div id="ranking-productos"><div class="empty-state"><div class="empty-sub">Sin datos suficientes aún</div></div></div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-title">🎨 Telas más vendidas</div>
+          <div id="ranking-telas"><div class="empty-state"><div class="empty-sub">Sin datos aún</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🌈 Colores más vendidos</div>
+          <div id="ranking-colores"><div class="empty-state"><div class="empty-sub">Sin datos aún</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TENDENCIAS IA ===== -->
+    <div id="section-tendencias" class="section">
+      <div class="card">
+        <div class="card-title">✨ Análisis de tendencias con IA</div>
+        <p style="font-size:13.5px; color:var(--mid); margin-bottom:20px;">La IA analiza tendencias actuales de camas tapizadas, diseños nube, colores y telas tanto en Argentina como en el mundo.</p>
+        <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+          <select id="tendencia-region" style="width:200px">
+            <option value="argentina">Argentina</option>
+            <option value="latinoamerica">Latinoamérica</option>
+            <option value="mundial">Mundial</option>
+          </select>
+          <select id="tendencia-tema" style="width:200px">
+            <option value="diseños">Diseños y estilos</option>
+            <option value="colores">Colores predominantes</option>
+            <option value="telas">Telas y materiales</option>
+            <option value="general">Tendencias generales</option>
+          </select>
+          <button class="btn btn-primary" onclick="analizarTendencias()">🔍 Analizar ahora</button>
+        </div>
+        <div id="tendencias-resultado" style="background:var(--cream); border-radius:10px; padding:20px; min-height:100px; font-size:14px; line-height:1.7; color:var(--charcoal);">
+          Seleccioná región y tema, luego hacé clic en "Analizar ahora".
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== IMPORTAR ===== -->
+    <div id="section-importar" class="section">
+      <div class="card">
+        <div class="card-title">📥 Importar base de datos</div>
+        <p style="font-size:13.5px; color:var(--mid); margin-bottom:20px;">Podés importar clientes y productos desde un archivo CSV o Excel exportado de tu sistema anterior.</p>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchImportTab('clientes')">Clientes</div>
+          <div class="tab" onclick="switchImportTab('productos')">Productos</div>
+        </div>
+
+        <div id="import-clientes">
+          <div style="background:var(--cream); border:2px dashed var(--border); border-radius:10px; padding:40px; text-align:center; margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('csv-clientes').click()">
+            <div style="font-size:36px; margin-bottom:8px;">📂</div>
+            <p style="font-weight:600; color:var(--charcoal); margin-bottom:4px;">Subir archivo CSV de clientes</p>
+            <p style="font-size:12px; color:var(--subtle);">Columnas esperadas: nombre, apellido, dni, domicilio, ciudad, provincia</p>
+          </div>
+          <input type="file" id="csv-clientes" accept=".csv" style="display:none" onchange="importarCSV('clientes', this)" />
+          <div id="import-clientes-result"></div>
+        </div>
+
+        <div id="import-productos" style="display:none">
+          <div style="background:var(--cream); border:2px dashed var(--border); border-radius:10px; padding:40px; text-align:center; margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('csv-productos').click()">
+            <div style="font-size:36px; margin-bottom:8px;">📂</div>
+            <p style="font-weight:600; color:var(--charcoal); margin-bottom:4px;">Subir archivo CSV de productos</p>
+            <p style="font-size:12px; color:var(--subtle);">Columnas esperadas: nombre, medida, tela, color, precio_costo, precio_venta, stock</p>
+          </div>
+          <input type="file" id="csv-productos" accept=".csv" style="display:none" onchange="importarCSV('productos', this)" />
+          <div id="import-productos-result"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ======= MODALES ======= -->
+
+<!-- MODAL PRODUCTO -->
+<div class="modal-overlay" id="modal-producto">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-producto')">×</button>
+    <div class="modal-title" id="modal-producto-title">Nuevo producto</div>
+    <input type="hidden" id="producto-edit-id" />
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre del producto *</label>
+        <input type="text" id="p-nombre" placeholder="Ej: Cama Nube Queen" />
+      </div>
+      <div class="form-group">
+        <label>Medida</label>
+        <select id="p-medida">
+          <option value="">Seleccionar</option>
+          <option>1 Plaza</option>
+          <option>1½ Plaza</option>
+          <option>2 Plazas</option>
+          <option>Queen</option>
+          <option>King</option>
+          <option>A medida</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tela</label>
+        <input type="text" id="p-tela" placeholder="Ej: Bouclé, Terciopelo, Lino..." />
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input type="text" id="p-color" placeholder="Ej: Blanco roto, Gris, Beige..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Precio de costo ($) *</label>
+        <input type="number" id="p-costo" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Precio de venta ($) *</label>
+        <input type="number" id="p-venta" placeholder="0.00" min="0" step="0.01" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Unidades en stock</label>
+        <input type="number" id="p-stock" placeholder="0" min="0" step="1" value="0" />
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="p-estado">
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Descripción / Notas</label>
+      <textarea id="p-descripcion" placeholder="Detalles adicionales del producto..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-producto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarProducto()">Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SERVICIO -->
+<div class="modal-overlay" id="modal-servicio">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-servicio')">×</button>
+    <div class="modal-title" id="modal-servicio-title">Nuevo servicio</div>
+    <input type="hidden" id="servicio-edit-id" />
+    <div class="form-group">
+      <label>Nombre del servicio *</label>
+      <input type="text" id="s-nombre" placeholder="Ej: Flete zona GBA, Envío interior..." />
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <input type="text" id="s-descripcion" placeholder="Detalles del servicio" />
+    </div>
+    <div class="form-group">
+      <label>Precio ($)</label>
+      <input type="number" id="s-precio" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label>Estado</label>
+      <select id="s-estado">
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-servicio')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarServicio()">Guardar servicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-cliente')">×</button>
+    <div class="modal-title" id="modal-cliente-title">Nuevo cliente</div>
+    <input type="hidden" id="cliente-edit-id" />
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" id="c-nombre" placeholder="Nombre" />
+      </div>
+      <div class="form-group">
+        <label>Apellido *</label>
+        <input type="text" id="c-apellido" placeholder="Apellido" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>DNI</label>
+        <input type="text" id="c-dni" placeholder="12.345.678" />
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" id="c-telefono" placeholder="11 1234-5678" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Domicilio</label>
+      <input type="text" id="c-domicilio" placeholder="Calle, número, piso..." />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ciudad *</label>
+        <input type="text" id="c-ciudad" placeholder="Ciudad" />
+      </div>
+      <div class="form-group">
+        <label>Provincia *</label>
+        <input type="text" id="c-provincia" placeholder="Provincia" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCliente()">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VENTA -->
+<div class="modal-overlay" id="modal-venta">
+  <div class="modal" style="max-width:640px">
+    <button class="modal-close" onclick="closeModal('modal-venta')">×</button>
+    <div class="modal-title">Nueva venta</div>
+    <div class="form-group">
+      <label>Cliente *</label>
+      <select id="v-cliente">
+        <option value="">Seleccionar cliente...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Producto *</label>
+      <select id="v-producto" onchange="calcularTotalVenta()">
+        <option value="">Seleccionar producto...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Servicio de envío</label>
+      <select id="v-servicio" onchange="calcularTotalVenta()">
+        <option value="">Sin servicio de envío</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Descuento (%)</label>
+        <input type="number" id="v-descuento" placeholder="0" min="0" max="100" step="0.1" value="0" oninput="calcularTotalVenta()" />
+      </div>
+      <div class="form-group">
+        <label>Seña / Anticipo ($)</label>
+        <input type="number" id="v-seña" placeholder="0.00" min="0" step="0.01" value="0" oninput="calcularTotalVenta()" />
+      </div>
+    </div>
+    <div style="background:var(--cream); border-radius:10px; padding:16px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13.5px; color:var(--mid);">
+        <span>Subtotal producto</span>
+        <span id="calc-producto">$0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13.5px; color:var(--mid);">
+        <span>Servicio de envío</span>
+        <span id="calc-servicio">$0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13.5px; color:var(--danger);">
+        <span>Descuento</span>
+        <span id="calc-descuento">-$0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:var(--charcoal); border-top:1px solid var(--border); padding-top:10px; margin-top:6px;">
+        <span>Total</span>
+        <span id="calc-total">$0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--warning); margin-top:6px;">
+        <span>Saldo pendiente</span>
+        <span id="calc-saldo">$0</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notas</label>
+      <textarea id="v-notas" placeholder="Color elegido, fecha de entrega, aclaraciones..." style="min-height:60px"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-venta')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarVenta()">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MOVIMIENTO -->
+<div class="modal-overlay" id="modal-movimiento">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-movimiento')">×</button>
+    <div class="modal-title">Nuevo movimiento</div>
+    <div class="form-group">
+      <label>Tipo *</label>
+      <select id="m-tipo">
+        <option value="ingreso">Ingreso</option>
+        <option value="egreso">Egreso</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Concepto *</label>
+      <input type="text" id="m-concepto" placeholder="Ej: Venta, Materia prima, Alquiler..." />
+    </div>
+    <div class="form-group">
+      <label>Monto ($) *</label>
+      <input type="number" id="m-monto" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label>Fecha</label>
+      <input type="date" id="m-fecha" />
+    </div>
+    <div class="form-group">
+      <label>Notas</label>
+      <textarea id="m-notas" placeholder="Detalles adicionales..." style="min-height:60px"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-movimiento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarMovimiento()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA STORE =====================
+let DB = {
+  productos: [],
+  servicios: [],
+  clientes: [],
+  ventas: [],
+  movimientos: []
+};
+
+function saveDB() {
+  localStorage.setItem('muebles_mic_db', JSON.stringify(DB));
+}
+
+function loadDB() {
+  const saved = localStorage.getItem('muebles_mic_db');
+  if (saved) DB = JSON.parse(saved);
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function fmtPeso(n) {
+  return '$' + parseFloat(n || 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtFecha(iso) {
+  if (!iso) return '-';
+  return new Date(iso).toLocaleDateString('es-AR');
+}
+
+// ===================== NAV =====================
+const sections = ['dashboard','productos','servicios','clientes','ventas','ingresos','analisis','tendencias','importar'];
+const sectionTitles = {
+  dashboard: ['Inicio', 'Bienvenido a Muebles MIC'],
+  productos: ['Productos', 'Catálogo de camas y tapizados'],
+  servicios: ['Servicios', 'Flete y servicios de envío'],
+  clientes: ['Clientes', 'Base de clientes registrados'],
+  ventas: ['Ventas', 'Historial de ventas'],
+  ingresos: ['Ingresos / Egresos', 'Movimientos financieros'],
+  analisis: ['Estadísticas', 'Análisis y rankings'],
+  tendencias: ['Tendencias IA', 'Análisis de mercado con inteligencia artificial'],
+  importar: ['Importar datos', 'Cargá tu base de datos anterior']
+};
+
+function showSection(name) {
+  sections.forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('active', s === name);
+  });
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+
+  const [title, sub] = sectionTitles[name] || [name, ''];
+  document.getElementById('topbar-title').textContent = title;
+  document.getElementById('topbar-sub').textContent = sub;
+
+  if (name === 'analisis') renderAnalisis();
+  if (name === 'dashboard') updateDashboard();
+  if (name === 'ingresos') renderMovimientos();
+}
+
+// Fix nav click highlight
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ===================== MODALES =====================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-venta') populateVentaSelects();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  resetForm(id);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeModal(this.id);
+  });
+});
+
+function resetForm(id) {
+  document.querySelectorAll(`#${id} input, #${id} select, #${id} textarea`).forEach(el => {
+    if (el.type === 'hidden') el.value = '';
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else if (el.type === 'number') el.value = el.defaultValue || '';
+    else el.value = '';
+  });
+}
+
+function showAlert(msg, type = 'success') {
+  const el = document.getElementById('global-alert');
+  el.style.display = 'block';
+  el.className = `alert alert-${type}`;
+  el.textContent = msg;
+  setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+// ===================== PRODUCTOS =====================
+function guardarProducto() {
+  const nombre = document.getElementById('p-nombre').value.trim();
+  const costo = parseFloat(document.getElementById('p-costo').value);
+  const venta = parseFloat(document.getElementById('p-venta').value);
+
+  if (!nombre) return showAlert('El nombre del producto es obligatorio', 'danger');
+  if (isNaN(costo) || isNaN(venta)) return showAlert('Los precios son obligatorios', 'danger');
+
+  const id = document.getElementById('producto-edit-id').value;
+  const prod = {
+    id: id || genId(),
+    nombre,
+    medida: document.getElementById('p-medida').value,
+    tela: document.getElementById('p-tela').value.trim(),
+    color: document.getElementById('p-color').value.trim(),
+    costo,
+    venta,
+    stock: parseInt(document.getElementById('p-stock').value) || 0,
+    estado: document.getElementById('p-estado').value,
+    descripcion: document.getElementById('p-descripcion').value.trim(),
+    creadoEn: id ? undefined : new Date().toISOString()
+  };
+
+  if (id) {
+    const idx = DB.productos.findIndex(p => p.id === id);
+    if (idx !== -1) DB.productos[idx] = { ...DB.productos[idx], ...prod };
+  } else {
+    DB.productos.push(prod);
+  }
+
+  saveDB();
+  closeModal('modal-producto');
+  renderProductos();
+  updateDashboard();
+  showAlert(id ? 'Producto actualizado ✓' : 'Producto agregado ✓');
+}
+
+function editarProducto(id) {
+  const p = DB.productos.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('producto-edit-id').value = p.id;
+  document.getElementById('p-nombre').value = p.nombre;
+  document.getElementById('p-medida').value = p.medida || '';
+  document.getElementById('p-tela').value = p.tela || '';
+  document.getElementById('p-color').value = p.color || '';
+  document.getElementById('p-costo').value = p.costo;
+  document.getElementById('p-venta').value = p.venta;
+  document.getElementById('p-stock').value = p.stock;
+  document.getElementById('p-estado').value = p.estado;
+  document.getElementById('p-descripcion').value = p.descripcion || '';
+  document.getElementById('modal-producto-title').textContent = 'Editar producto';
+  openModal('modal-producto');
+}
+
+function eliminarProducto(id) {
+  if (!confirm('¿Eliminar este producto?')) return;
+  DB.productos = DB.productos.filter(p => p.id !== id);
+  saveDB();
+  renderProductos();
+  updateDashboard();
+  showAlert('Producto eliminado');
+}
+
+function renderProductos() {
+  const q = document.getElementById('search-producto').value.toLowerCase();
+  const lista = DB.productos.filter(p =>
+    p.nombre.toLowerCase().includes(q) ||
+    (p.tela || '').toLowerCase().includes(q) ||
+    (p.color || '').toLowerCase().includes(q)
+  );
+  const tbody = document.getElementById('tabla-productos');
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🛏️</div><div class="empty-title">Sin productos</div><div class="empty-sub">Hacé clic en "Nuevo producto" para agregar</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(p => {
+    const margen = p.costo > 0 ? ((p.venta - p.costo) / p.costo * 100).toFixed(0) : '-';
+    return `<tr>
+      <td><strong>${p.nombre}</strong>${p.descripcion ? '<br><span style="font-size:11px;color:var(--subtle)">' + p.descripcion.substring(0,40) + '</span>' : ''}</td>
+      <td>${p.medida || '-'}</td>
+      <td>
+        ${p.tela ? '<span class="badge badge-tela">' + p.tela + '</span> ' : ''}
+        ${p.color ? p.color : '-'}
+      </td>
+      <td>${p.stock}</td>
+      <td class="price-cost">${fmtPeso(p.costo)}</td>
+      <td class="price">${fmtPeso(p.venta)}</td>
+      <td style="color:var(--success);font-weight:600">${margen !== '-' ? margen + '%' : '-'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editarProducto('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarProducto('${p.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function aplicarAumentoMasivo() {
+  const pct = parseFloat(document.getElementById('bulk-porcentaje').value);
+  const tipo = document.getElementById('bulk-tipo').value;
+  if (isNaN(pct) || pct <= 0) return showAlert('Ingresá un porcentaje válido', 'danger');
+  if (!DB.productos.length) return showAlert('No hay productos para actualizar', 'danger');
+  if (!confirm(`¿Aumentar ${tipo === 'ambos' ? 'ambos precios' : 'precio de ' + tipo} un ${pct}% en todos los productos?`)) return;
+
+  DB.productos = DB.productos.map(p => {
+    const factor = 1 + pct / 100;
+    return {
+      ...p,
+      costo: tipo === 'venta' ? p.costo : parseFloat((p.costo * factor).toFixed(2)),
+      venta: tipo === 'costo' ? p.venta : parseFloat((p.venta * factor).toFixed(2))
+    };
+  });
+  saveDB();
+  renderProductos();
+  showAlert(`Precios actualizados +${pct}% ✓`);
+  document.getElementById('bulk-porcentaje').value = '';
+}
+
+// ===================== SERVICIOS =====================
+function guardarServicio() {
+  const nombre = document.getElementById('s-nombre').value.trim();
+  if (!nombre) return showAlert('El nombre del servicio es obligatorio', 'danger');
+
+  const id = document.getElementById('servicio-edit-id').value;
+  const srv = {
+    id: id || genId(),
+    nombre,
+    descripcion: document.getElementById('s-descripcion').value.trim(),
+    precio: parseFloat(document.getElementById('s-precio').value) || 0,
+    estado: document.getElementById('s-estado').value
+  };
+
+  if (id) {
+    const idx = DB.servicios.findIndex(s => s.id === id);
+    if (idx !== -1) DB.servicios[idx] = srv;
+  } else {
+    DB.servicios.push(srv);
+  }
+
+  saveDB();
+  closeModal('modal-servicio');
+  renderServicios();
+  showAlert(id ? 'Servicio actualizado ✓' : 'Servicio agregado ✓');
+}
+
+function editarServicio(id) {
+  const s = DB.servicios.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('servicio-edit-id').value = s.id;
+  document.getElementById('s-nombre').value = s.nombre;
+  document.getElementById('s-descripcion').value = s.descripcion;
+  document.getElementById('s-precio').value = s.precio;
+  document.getElementById('s-estado').value = s.estado;
+  document.getElementById('modal-servicio-title').textContent = 'Editar servicio';
+  openModal('modal-servicio');
+}
+
+function eliminarServicio(id) {
+  if (!confirm('¿Eliminar este servicio?')) return;
+  DB.servicios = DB.servicios.filter(s => s.id !== id);
+  saveDB();
+  renderServicios();
+  showAlert('Servicio eliminado');
+}
+
+function renderServicios() {
+  const q = document.getElementById('search-servicio').value.toLowerCase();
+  const lista = DB.servicios.filter(s => s.nombre.toLowerCase().includes(q));
+  const tbody = document.getElementById('tabla-servicios');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🚚</div><div class="empty-title">Sin servicios</div><div class="empty-sub">Agregá flete u otros servicios</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(s => `<tr>
+    <td><strong>${s.nombre}</strong></td>
+    <td>${s.descripcion || '-'}</td>
+    <td class="price">${fmtPeso(s.precio)}</td>
+    <td><span class="badge badge-${s.estado}">${s.estado}</span></td>
+    <td>
+      <button class="btn btn-secondary btn-sm" onclick="editarServicio('${s.id}')">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="eliminarServicio('${s.id}')">🗑️</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ===================== CLIENTES =====================
+function guardarCliente() {
+  const nombre = document.getElementById('c-nombre').value.trim();
+  const apellido = document.getElementById('c-apellido').value.trim();
+  const ciudad = document.getElementById('c-ciudad').value.trim();
+  if (!nombre || !apellido) return showAlert('Nombre y apellido son obligatorios', 'danger');
+
+  const id = document.getElementById('cliente-edit-id').value;
+  const cli = {
+    id: id || genId(),
+    nombre,
+    apellido,
+    dni: document.getElementById('c-dni').value.trim(),
+    telefono: document.getElementById('c-telefono').value.trim(),
+    domicilio: document.getElementById('c-domicilio').value.trim(),
+    ciudad,
+    provincia: document.getElementById('c-provincia').value.trim(),
+    creadoEn: id ? undefined : new Date().toISOString()
+  };
+
+  if (id) {
+    const idx = DB.clientes.findIndex(c => c.id === id);
+    if (idx !== -1) DB.clientes[idx] = { ...DB.clientes[idx], ...cli };
+  } else {
+    DB.clientes.push(cli);
+  }
+
+  saveDB();
+  closeModal('modal-cliente');
+  renderClientes();
+  updateDashboard();
+  showAlert(id ? 'Cliente actualizado ✓' : 'Cliente registrado ✓');
+}
+
+function editarCliente(id) {
+  const c = DB.clientes.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('cliente-edit-id').value = c.id;
+  document.getElementById('c-nombre').value = c.nombre;
+  document.getElementById('c-apellido').value = c.apellido;
+  document.getElementById('c-dni').value = c.dni || '';
+  document.getElementById('c-telefono').value = c.telefono || '';
+  document.getElementById('c-domicilio').value = c.domicilio || '';
+  document.getElementById('c-ciudad').value = c.ciudad || '';
+  document.getElementById('c-provincia').value = c.provincia || '';
+  document.getElementById('modal-cliente-title').textContent = 'Editar cliente';
+  openModal('modal-cliente');
+}
+
+function eliminarCliente(id) {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  DB.clientes = DB.clientes.filter(c => c.id !== id);
+  saveDB();
+  renderClientes();
+  updateDashboard();
+  showAlert('Cliente eliminado');
+}
+
+function renderClientes() {
+  const q = document.getElementById('search-cliente').value.toLowerCase();
+  const lista = DB.clientes.filter(c =>
+    (c.nombre + ' ' + c.apellido).toLowerCase().includes(q) ||
+    (c.dni || '').includes(q) ||
+    (c.ciudad || '').toLowerCase().includes(q)
+  );
+  const tbody = document.getElementById('tabla-clientes');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Sin clientes</div><div class="empty-sub">Registrá tu primer cliente</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(c => {
+    const compras = DB.ventas.filter(v => v.clienteId === c.id).length;
+    return `<tr>
+      <td><strong>${c.nombre} ${c.apellido}</strong>${c.telefono ? '<br><span style="font-size:11px;color:var(--subtle)">' + c.telefono + '</span>' : ''}</td>
+      <td>${c.dni || '-'}</td>
+      <td>${c.ciudad || '-'}</td>
+      <td>${c.provincia || '-'}</td>
+      <td>${compras}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editarCliente('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarCliente('${c.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== VENTAS =====================
+function populateVentaSelects() {
+  const selC = document.getElementById('v-cliente');
+  const selP = document.getElementById('v-producto');
+  const selS = document.getElementById('v-servicio');
+  selC.innerHTML = '<option value="">Seleccionar cliente...</option>' +
+    DB.clientes.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido}</option>`).join('');
+  selP.innerHTML = '<option value="">Seleccionar producto...</option>' +
+    DB.productos.filter(p => p.estado === 'activo').map(p => `<option value="${p.id}" data-precio="${p.venta}">${p.nombre} ${p.medida ? '— ' + p.medida : ''} — ${fmtPeso(p.venta)}</option>`).join('');
+  selS.innerHTML = '<option value="">Sin servicio de envío</option>' +
+    DB.servicios.filter(s => s.estado === 'activo').map(s => `<option value="${s.id}" data-precio="${s.precio}">${s.nombre} — ${fmtPeso(s.precio)}</option>`).join('');
+}
+
+function calcularTotalVenta() {
+  const selP = document.getElementById('v-producto');
+  const selS = document.getElementById('v-servicio');
+  const precioProducto = selP.value ? parseFloat(selP.options[selP.selectedIndex].dataset.precio || 0) : 0;
+  const precioServicio = selS.value ? parseFloat(selS.options[selS.selectedIndex].dataset.precio || 0) : 0;
+  const descuento = parseFloat(document.getElementById('v-descuento').value) || 0;
+  const seña = parseFloat(document.getElementById('v-seña').value) || 0;
+
+  const subtotal = precioProducto + precioServicio;
+  const descMonto = subtotal * (descuento / 100);
+  const total = subtotal - descMonto;
+  const saldo = total - seña;
+
+  document.getElementById('calc-producto').textContent = fmtPeso(precioProducto);
+  document.getElementById('calc-servicio').textContent = fmtPeso(precioServicio);
+  document.getElementById('calc-descuento').textContent = '-' + fmtPeso(descMonto);
+  document.getElementById('calc-total').textContent = fmtPeso(total);
+  document.getElementById('calc-saldo').textContent = fmtPeso(Math.max(0, saldo));
+}
+
+function guardarVenta() {
+  const clienteId = document.getElementById('v-cliente').value;
+  const productoId = document.getElementById('v-producto').value;
+  if (!clienteId) return showAlert('Seleccioná un cliente', 'danger');
+  if (!productoId) return showAlert('Seleccioná un producto', 'danger');
+
+  const selP = document.getElementById('v-producto');
+  const selS = document.getElementById('v-servicio');
+  const precioProducto = parseFloat(selP.options[selP.selectedIndex].dataset.precio || 0);
+  const precioServicio = selS.value ? parseFloat(selS.options[selS.selectedIndex].dataset.precio || 0) : 0;
+  const descuento = parseFloat(document.getElementById('v-descuento').value) || 0;
+  const seña = parseFloat(document.getElementById('v-seña').value) || 0;
+  const total = (precioProducto + precioServicio) * (1 - descuento / 100);
+
+  const venta = {
+    id: genId(),
+    fecha: new Date().toISOString(),
+    clienteId,
+    productoId,
+    servicioId: document.getElementById('v-servicio').value || null,
+    descuento,
+    seña,
+    total,
+    saldo: Math.max(0, total - seña),
+    notas: document.getElementById('v-notas').value.trim()
+  };
+
+  DB.ventas.push(venta);
+  // Auto-agregar como ingreso
+  DB.movimientos.push({
+    id: genId(),
+    tipo: 'ingreso',
+    concepto: 'Venta — ' + (DB.productos.find(p => p.id === productoId)?.nombre || ''),
+    monto: total,
+    fecha: new Date().toISOString()
+  });
+
+  saveDB();
+  closeModal('modal-venta');
+  renderVentas();
+  updateDashboard();
+  showAlert('Venta registrada ✓');
+}
+
+function renderVentas() {
+  const q = document.getElementById('search-venta').value.toLowerCase();
+  const tbody = document.getElementById('tabla-ventas');
+  const lista = DB.ventas.filter(v => {
+    const cli = DB.clientes.find(c => c.id === v.clienteId);
+    const prod = DB.productos.find(p => p.id === v.productoId);
+    return (cli ? (cli.nombre + ' ' + cli.apellido).toLowerCase().includes(q) : false) ||
+           (prod ? prod.nombre.toLowerCase().includes(q) : false);
+  });
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">Sin ventas</div><div class="empty-sub">Registrá tu primera venta</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = [...lista].reverse().map(v => {
+    const cli = DB.clientes.find(c => c.id === v.clienteId);
+    const prod = DB.productos.find(p => p.id === v.productoId);
+    const srv = v.servicioId ? DB.servicios.find(s => s.id === v.servicioId) : null;
+    return `<tr>
+      <td>${fmtFecha(v.fecha)}</td>
+      <td>${cli ? cli.nombre + ' ' + cli.apellido : '-'}</td>
+      <td>${prod ? prod.nombre : '-'}</td>
+      <td>${srv ? srv.nombre : '-'}</td>
+      <td>${v.descuento ? v.descuento + '%' : '-'}</td>
+      <td>${fmtPeso(v.seña)}</td>
+      <td class="price">${fmtPeso(v.total)}</td>
+      <td><span class="badge" style="background:${v.saldo > 0 ? '#FFF3E0' : '#E8F4E8'};color:${v.saldo > 0 ? '#E65100' : '#2D6A4F'}">${v.saldo > 0 ? 'Pendiente ' + fmtPeso(v.saldo) : 'Pagado'}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminarVenta('${v.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function eliminarVenta(id) {
+  if (!confirm('¿Eliminar esta venta?')) return;
+  DB.ventas = DB.ventas.filter(v => v.id !== id);
+  saveDB();
+  renderVentas();
+  updateDashboard();
+  showAlert('Venta eliminada');
+}
+
+// ===================== MOVIMIENTOS =====================
+function guardarMovimiento() {
+  const concepto = document.getElementById('m-concepto').value.trim();
+  const monto = parseFloat(document.getElementById('m-monto').value);
+  if (!concepto) return showAlert('El concepto es obligatorio', 'danger');
+  if (isNaN(monto) || monto <= 0) return showAlert('El monto debe ser mayor a 0', 'danger');
+
+  DB.movimientos.push({
+    id: genId(),
+    tipo: document.getElementById('m-tipo').value,
+    concepto,
+    monto,
+    fecha: document.getElementById('m-fecha').value || new Date().toISOString(),
+    notas: document.getElementById('m-notas').value.trim()
+  });
+
+  saveDB();
+  closeModal('modal-movimiento');
+  renderMovimientos();
+  showAlert('Movimiento registrado ✓');
+}
+
+function renderMovimientos() {
+  const q = document.getElementById('search-movimiento').value.toLowerCase();
+  const lista = DB.movimientos.filter(m => m.concepto.toLowerCase().includes(q));
+  const tbody = document.getElementById('tabla-movimientos');
+
+  const totalIng = DB.movimientos.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0);
+  const totalEgr = DB.movimientos.filter(m => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0);
+  const balance = totalIng - totalEgr;
+  document.getElementById('total-ingresos').textContent = fmtPeso(totalIng);
+  document.getElementById('total-egresos').textContent = fmtPeso(totalEgr);
+  document.getElementById('balance-total').textContent = fmtPeso(balance);
+  document.getElementById('balance-total').style.color = balance >= 0 ? 'var(--success)' : 'var(--danger)';
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Sin movimientos</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = [...lista].reverse().map(m => `<tr>
+    <td>${fmtFecha(m.fecha)}</td>
+    <td><span class="badge" style="background:${m.tipo === 'ingreso' ? '#E8F4E8' : '#F4E8E8'};color:${m.tipo === 'ingreso' ? '#2D6A4F' : '#6A2D2D'}">${m.tipo}</span></td>
+    <td>${m.concepto}</td>
+    <td class="price" style="color:${m.tipo === 'ingreso' ? 'var(--success)' : 'var(--danger)'}">${m.tipo === 'ingreso' ? '+' : '-'}${fmtPeso(m.monto)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="eliminarMovimiento('${m.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+
+function eliminarMovimiento(id) {
+  if (!confirm('¿Eliminar este movimiento?')) return;
+  DB.movimientos = DB.movimientos.filter(m => m.id !== id);
+  saveDB();
+  renderMovimientos();
+}
+
+// ===================== ANÁLISIS =====================
+function renderAnalisis() {
+  // Ciudades
+  const ciudades = {};
+  DB.ventas.forEach(v => {
+    const cli = DB.clientes.find(c => c.id === v.clienteId);
+    if (cli?.ciudad) ciudades[cli.ciudad] = (ciudades[cli.ciudad] || 0) + 1;
+  });
+  renderRanking('ranking-ciudades', ciudades, 10, '🏙️');
+
+  // Productos
+  const prods = {};
+  DB.ventas.forEach(v => {
+    const prod = DB.productos.find(p => p.id === v.productoId);
+    if (prod) prods[prod.nombre] = (prods[prod.nombre] || 0) + 1;
+  });
+  renderRanking('ranking-productos', prods, 10, '🛏️');
+
+  // Telas
+  const telas = {};
+  DB.ventas.forEach(v => {
+    const prod = DB.productos.find(p => p.id === v.productoId);
+    if (prod?.tela) telas[prod.tela] = (telas[prod.tela] || 0) + 1;
+  });
+  renderRanking('ranking-telas', telas, 5, '🧵');
+
+  // Colores
+  const colores = {};
+  DB.ventas.forEach(v => {
+    const prod = DB.productos.find(p => p.id === v.productoId);
+    if (prod?.color) colores[prod.color] = (colores[prod.color] || 0) + 1;
+  });
+  renderRanking('ranking-colores', colores, 5, '🎨');
+}
+
+function renderRanking(elId, data, top, icon) {
+  const el = document.getElementById(elId);
+  const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, top);
+  if (!sorted.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:20px"><div class="empty-sub">Sin datos suficientes aún</div></div>';
+    return;
+  }
+  const max = sorted[0][1];
+  el.innerHTML = sorted.map(([label, count], i) => `
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+      <span style="width:22px; font-size:13px; font-weight:700; color:var(--subtle)">${i + 1}</span>
+      <div style="flex:1">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="font-size:13.5px; font-weight:500">${icon} ${label}</span>
+          <span style="font-size:13px; color:var(--accent); font-weight:600">${count} venta${count !== 1 ? 's' : ''}</span>
+        </div>
+        <div style="background:var(--border); border-radius:4px; height:6px;">
+          <div style="background:var(--accent); border-radius:4px; height:6px; width:${(count/max*100).toFixed(0)}%; transition:width 0.4s"></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================== TENDENCIAS IA =====================
+async function analizarTendencias() {
+  const region = document.getElementById('tendencia-region').value;
+  const tema = document.getElementById('tendencia-tema').value;
+  const el = document.getElementById('tendencias-resultado');
+  el.innerHTML = '⏳ Analizando tendencias con IA...';
+
+  const regionLabel = { argentina: 'Argentina', latinoamerica: 'Latinoamérica', mundial: 'a nivel mundial' }[region];
+  const temaLabel = { diseños: 'diseños y estilos', colores: 'colores predominantes', telas: 'telas y materiales', general: 'tendencias generales' }[tema];
+
+  const prompt = `Eres un experto en tendencias de muebles y decoración de dormitorios. Analiza las tendencias actuales de ${temaLabel} para camas tapizadas estilo "nube" (camas con respaldo y bordes completamente tapizados, también conocidas como "camas canelón") en ${regionLabel}. 
+  
+  Incluí:
+  1. Las 3-5 tendencias más relevantes actualmente
+  2. Qué está siendo más demandado por los consumidores
+  3. Predicción para los próximos meses
+  4. Recomendaciones concretas para Muebles MIC, una empresa argentina que fabrica este tipo de camas
+  
+  Sé específico y práctico. Responde en español.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+    el.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^(\d+\.)/gm, '<br><strong>$1</strong>');
+  } catch (err) {
+    el.innerHTML = '❌ Error al conectar con la IA. Verificá tu conexión a internet.';
+  }
+}
+
+// ===================== IMPORTAR CSV =====================
+function switchImportTab(tab) {
+  document.querySelectorAll('.tabs .tab').forEach((t, i) => t.classList.toggle('active', i === (tab === 'clientes' ? 0 : 1)));
+  document.getElementById('import-clientes').style.display = tab === 'clientes' ? '' : 'none';
+  document.getElementById('import-productos').style.display = tab === 'productos' ? '' : 'none';
+}
+
+function importarCSV(tipo, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/[^a-z_]/g, ''));
+    const rows = lines.slice(1);
+    let count = 0;
+
+    rows.forEach(row => {
+      const vals = row.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = vals[i] || '');
+
+      if (tipo === 'clientes') {
+        if (!obj.nombre && !obj.apellido) return;
+        DB.clientes.push({
+          id: genId(),
+          nombre: obj.nombre || '',
+          apellido: obj.apellido || '',
+          dni: obj.dni || '',
+          telefono: obj.telefono || '',
+          domicilio: obj.domicilio || '',
+          ciudad: obj.ciudad || '',
+          provincia: obj.provincia || '',
+          creadoEn: new Date().toISOString()
+        });
+        count++;
+      } else if (tipo === 'productos') {
+        if (!obj.nombre) return;
+        DB.productos.push({
+          id: genId(),
+          nombre: obj.nombre,
+          medida: obj.medida || '',
+          tela: obj.tela || '',
+          color: obj.color || '',
+          costo: parseFloat(obj.precio_costo || obj.costo || 0),
+          venta: parseFloat(obj.precio_venta || obj.venta || 0),
+          stock: parseInt(obj.stock || 0),
+          estado: 'activo',
+          creadoEn: new Date().toISOString()
+        });
+        count++;
+      }
+    });
+
+    saveDB();
+    renderClientes();
+    renderProductos();
+    updateDashboard();
+    document.getElementById(`import-${tipo}-result`).innerHTML =
+      `<div class="alert alert-success">✓ Se importaron ${count} ${tipo} correctamente.</div>`;
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ===================== DASHBOARD =====================
+function updateDashboard() {
+  document.getElementById('stat-productos').textContent = DB.productos.length;
+  document.getElementById('stat-clientes').textContent = DB.clientes.length;
+  document.getElementById('stat-ventas').textContent = DB.ventas.length;
+
+  const mesActual = new Date().getMonth();
+  const añoActual = new Date().getFullYear();
+  const facturado = DB.ventas
+    .filter(v => { const d = new Date(v.fecha); return d.getMonth() === mesActual && d.getFullYear() === añoActual; })
+    .reduce((s, v) => s + v.total, 0);
+  document.getElementById('stat-facturado').textContent = fmtPeso(facturado);
+
+  const rec = [...DB.ventas].reverse().slice(0, 5);
+  const el = document.getElementById('dashboard-ventas-recientes');
+  if (!rec.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin ventas aún</div></div>';
+    return;
+  }
+  el.innerHTML = `<table style="width:100%"><thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th></tr></thead><tbody>` +
+    rec.map(v => {
+      const cli = DB.clientes.find(c => c.id === v.clienteId);
+      const prod = DB.productos.find(p => p.id === v.productoId);
+      return `<tr>
+        <td>${fmtFecha(v.fecha)}</td>
+        <td>${cli ? cli.nombre + ' ' + cli.apellido : '-'}</td>
+        <td>${prod ? prod.nombre : '-'}</td>
+        <td class="price">${fmtPeso(v.total)}</td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
+}
+
+// ===================== MOBILE MENU =====================
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+// Close menu on nav item click (mobile)
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    if (window.innerWidth <= 768) closeMenu();
+  });
+});
+
+// ===================== INIT =====================
+loadDB();
+updateDashboard();
+document.getElementById('m-fecha').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
