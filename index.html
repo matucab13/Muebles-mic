@@ -1201,7 +1201,38 @@
 </div>
 
 <script>
-// ===================== DATA STORE =====================
+// ===================== SUPABASE CONFIG =====================
+const SUPABASE_URL = 'https://tognitbrojcseeinctew.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvZ25pdGJyb2pjc2VlaW5jdGV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0OTI3NDUsImV4cCI6MjA5NzA2ODc0NX0.Hc1M038jpSsjCb2oobRYOc0zCWcrezYYd2dPmBbjBGw';
+
+async function sbFetch(table, method = 'GET', body = null, query = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${table}${query}`;
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) { const err = await res.text(); console.error('SB error:', err); return null; }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+const sb = {
+  async getAll(table) { return await sbFetch(table, 'GET', null, '?order=creado_en.desc') || []; },
+  async insert(table, data) { return await sbFetch(table, 'POST', data); },
+  async update(table, id, data) { return await sbFetch(table, 'PATCH', data, `?id=eq.${id}`); },
+  async delete(table, id) { return await sbFetch(table, 'DELETE', null, `?id=eq.${id}`); },
+  async getVentas() { return await sbFetch('ventas', 'GET', null, '?order=fecha.desc') || []; },
+  async getMovimientos() { return await sbFetch('movimientos', 'GET', null, '?order=fecha.desc') || []; },
+};
+
+// ===================== DATA STORE (en memoria, sincronizado con Supabase) =====================
 let DB = {
   productos: [],
   servicios: [],
@@ -1210,13 +1241,41 @@ let DB = {
   movimientos: []
 };
 
-function saveDB() {
-  localStorage.setItem('muebles_mic_db', JSON.stringify(DB));
+function saveDB() {} // datos en Supabase, no localStorage
+
+async function loadDB() {
+  try {
+    showLoadingState(true);
+    const [productos, servicios, clientes, ventas, movimientos] = await Promise.all([
+      sb.getAll('productos'),
+      sb.getAll('servicios'),
+      sb.getAll('clientes'),
+      sb.getVentas(),
+      sb.getMovimientos()
+    ]);
+    DB.productos = (productos || []).map(p => ({...p, costo: parseFloat(p.costo), venta: parseFloat(p.venta), stock: parseInt(p.stock), creadoEn: p.creado_en}));
+    DB.servicios = (servicios || []).map(s => ({...s, precio: parseFloat(s.precio)}));
+    DB.clientes = (clientes || []).map(c => ({...c, creadoEn: c.creado_en}));
+    DB.ventas = (ventas || []).map(v => ({...v, clienteId: v.cliente_id, productoId: v.producto_id, servicioId: v.servicio_id, seña: parseFloat(v.sena), total: parseFloat(v.total), saldo: parseFloat(v.saldo), descuento: parseFloat(v.descuento)}));
+    DB.movimientos = (movimientos || []).map(m => ({...m, monto: parseFloat(m.monto)}));
+    showLoadingState(false);
+    renderAll();
+    updateDashboard();
+  } catch(e) {
+    console.error('Error cargando datos:', e);
+    showLoadingState(false);
+    showAlert('Error conectando con la base de datos', 'danger');
+  }
 }
 
-function loadDB() {
-  const saved = localStorage.getItem('muebles_mic_db');
-  if (saved) DB = JSON.parse(saved);
+function showLoadingState(show) {
+  const el = document.getElementById('global-alert');
+  if (show) { el.style.display='block'; el.className='alert'; el.style.background='#FFF3E0'; el.style.color='#E65100'; el.textContent='⏳ Cargando datos...'; }
+  else { el.style.display='none'; }
+}
+
+function renderAll() {
+  renderProductos(); renderServicios(); renderClientes(); renderVentas(); renderMovimientos();
 }
 
 function genId() {
@@ -1328,18 +1387,20 @@ function guardarProducto() {
     creadoEn: id ? undefined : new Date().toISOString()
   };
 
-  if (id) {
-    const idx = DB.productos.findIndex(p => p.id === id);
-    if (idx !== -1) DB.productos[idx] = { ...DB.productos[idx], ...prod };
-  } else {
-    DB.productos.push(prod);
-  }
-
-  saveDB();
-  closeModal('modal-producto');
-  renderProductos();
-  updateDashboard();
-  showAlert(id ? 'Producto actualizado ✓' : 'Producto agregado ✓');
+  try {
+    if (id) {
+      await sb.update('productos', id, {nombre:prod.nombre,medida:prod.medida,tela:prod.tela,color:prod.color,costo:prod.costo,venta:prod.venta,stock:prod.stock,estado:prod.estado,descripcion:prod.descripcion});
+      const idx = DB.productos.findIndex(p => p.id === id);
+      if (idx !== -1) DB.productos[idx] = { ...DB.productos[idx], ...prod };
+    } else {
+      await sb.insert('productos', {id:prod.id,nombre:prod.nombre,medida:prod.medida,tela:prod.tela,color:prod.color,costo:prod.costo,venta:prod.venta,stock:prod.stock,estado:prod.estado,descripcion:prod.descripcion});
+      DB.productos.unshift(prod);
+    }
+    closeModal('modal-producto');
+    renderProductos();
+    updateDashboard();
+    showAlert(id ? 'Producto actualizado ✓' : 'Producto agregado ✓');
+  } catch(e) { showAlert('Error guardando producto', 'danger'); }
 }
 
 function editarProducto(id) {
@@ -1361,8 +1422,8 @@ function editarProducto(id) {
 
 function eliminarProducto(id) {
   if (!confirm('¿Eliminar este producto?')) return;
+  await sb.delete('productos', id);
   DB.productos = DB.productos.filter(p => p.id !== id);
-  saveDB();
   renderProductos();
   updateDashboard();
   showAlert('Producto eliminado');
@@ -1418,7 +1479,10 @@ function aplicarAumentoMasivo() {
       venta: tipo === 'costo' ? p.venta : parseFloat((p.venta * factor).toFixed(2))
     };
   });
-  saveDB();
+  // Sync all updated products to Supabase
+  for (const p of DB.productos) {
+    await sb.update('productos', p.id, {costo: p.costo, venta: p.venta});
+  }
   renderProductos();
   showAlert(`Precios actualizados +${pct}% ✓`);
   document.getElementById('bulk-porcentaje').value = '';
@@ -1438,17 +1502,19 @@ function guardarServicio() {
     estado: document.getElementById('s-estado').value
   };
 
-  if (id) {
-    const idx = DB.servicios.findIndex(s => s.id === id);
-    if (idx !== -1) DB.servicios[idx] = srv;
-  } else {
-    DB.servicios.push(srv);
-  }
-
-  saveDB();
-  closeModal('modal-servicio');
-  renderServicios();
-  showAlert(id ? 'Servicio actualizado ✓' : 'Servicio agregado ✓');
+  try {
+    if (id) {
+      await sb.update('servicios', id, {nombre:srv.nombre,descripcion:srv.descripcion,precio:srv.precio,estado:srv.estado});
+      const idx = DB.servicios.findIndex(s => s.id === id);
+      if (idx !== -1) DB.servicios[idx] = srv;
+    } else {
+      await sb.insert('servicios', srv);
+      DB.servicios.unshift(srv);
+    }
+    closeModal('modal-servicio');
+    renderServicios();
+    showAlert(id ? 'Servicio actualizado ✓' : 'Servicio agregado ✓');
+  } catch(e) { showAlert('Error guardando servicio', 'danger'); }
 }
 
 function editarServicio(id) {
@@ -1465,8 +1531,8 @@ function editarServicio(id) {
 
 function eliminarServicio(id) {
   if (!confirm('¿Eliminar este servicio?')) return;
+  await sb.delete('servicios', id);
   DB.servicios = DB.servicios.filter(s => s.id !== id);
-  saveDB();
   renderServicios();
   showAlert('Servicio eliminado');
 }
@@ -1511,18 +1577,20 @@ function guardarCliente() {
     creadoEn: id ? undefined : new Date().toISOString()
   };
 
-  if (id) {
-    const idx = DB.clientes.findIndex(c => c.id === id);
-    if (idx !== -1) DB.clientes[idx] = { ...DB.clientes[idx], ...cli };
-  } else {
-    DB.clientes.push(cli);
-  }
-
-  saveDB();
-  closeModal('modal-cliente');
-  renderClientes();
-  updateDashboard();
-  showAlert(id ? 'Cliente actualizado ✓' : 'Cliente registrado ✓');
+  try {
+    if (id) {
+      await sb.update('clientes', id, {nombre:cli.nombre,apellido:cli.apellido,dni:cli.dni,telefono:cli.telefono,domicilio:cli.domicilio,ciudad:cli.ciudad,provincia:cli.provincia});
+      const idx = DB.clientes.findIndex(c => c.id === id);
+      if (idx !== -1) DB.clientes[idx] = { ...DB.clientes[idx], ...cli };
+    } else {
+      await sb.insert('clientes', {id:cli.id,nombre:cli.nombre,apellido:cli.apellido,dni:cli.dni,telefono:cli.telefono,domicilio:cli.domicilio,ciudad:cli.ciudad,provincia:cli.provincia});
+      DB.clientes.unshift(cli);
+    }
+    closeModal('modal-cliente');
+    renderClientes();
+    updateDashboard();
+    showAlert(id ? 'Cliente actualizado ✓' : 'Cliente registrado ✓');
+  } catch(e) { showAlert('Error guardando cliente', 'danger'); }
 }
 
 function editarCliente(id) {
@@ -1542,8 +1610,8 @@ function editarCliente(id) {
 
 function eliminarCliente(id) {
   if (!confirm('¿Eliminar este cliente?')) return;
+  await sb.delete('clientes', id);
   DB.clientes = DB.clientes.filter(c => c.id !== id);
-  saveDB();
   renderClientes();
   updateDashboard();
   showAlert('Cliente eliminado');
@@ -1637,21 +1705,17 @@ function guardarVenta() {
     notas: document.getElementById('v-notas').value.trim()
   };
 
-  DB.ventas.push(venta);
-  // Auto-agregar como ingreso
-  DB.movimientos.push({
-    id: genId(),
-    tipo: 'ingreso',
-    concepto: 'Venta — ' + (DB.productos.find(p => p.id === productoId)?.nombre || ''),
-    monto: total,
-    fecha: new Date().toISOString()
-  });
-
-  saveDB();
-  closeModal('modal-venta');
-  renderVentas();
-  updateDashboard();
-  showAlert('Venta registrada ✓');
+  try {
+    await sb.insert('ventas', {id:venta.id,fecha:venta.fecha,cliente_id:venta.clienteId,producto_id:venta.productoId,servicio_id:venta.servicioId,descuento:venta.descuento,sena:venta.seña,total:venta.total,saldo:venta.saldo,notas:venta.notas});
+    DB.ventas.unshift(venta);
+    const mov = {id:genId(),tipo:'ingreso',concepto:'Venta — '+(DB.productos.find(p=>p.id===productoId)?.nombre||''),monto:total,fecha:new Date().toISOString()};
+    await sb.insert('movimientos', mov);
+    DB.movimientos.unshift(mov);
+    closeModal('modal-venta');
+    renderVentas();
+    updateDashboard();
+    showAlert('Venta registrada ✓');
+  } catch(e) { showAlert('Error guardando venta', 'danger'); }
 }
 
 function renderVentas() {
@@ -1689,8 +1753,8 @@ function renderVentas() {
 
 function eliminarVenta(id) {
   if (!confirm('¿Eliminar esta venta?')) return;
+  await sb.delete('ventas', id);
   DB.ventas = DB.ventas.filter(v => v.id !== id);
-  saveDB();
   renderVentas();
   updateDashboard();
   showAlert('Venta eliminada');
@@ -1703,19 +1767,21 @@ function guardarMovimiento() {
   if (!concepto) return showAlert('El concepto es obligatorio', 'danger');
   if (isNaN(monto) || monto <= 0) return showAlert('El monto debe ser mayor a 0', 'danger');
 
-  DB.movimientos.push({
+  const mov = {
     id: genId(),
     tipo: document.getElementById('m-tipo').value,
     concepto,
     monto,
     fecha: document.getElementById('m-fecha').value || new Date().toISOString(),
     notas: document.getElementById('m-notas').value.trim()
-  });
-
-  saveDB();
-  closeModal('modal-movimiento');
-  renderMovimientos();
-  showAlert('Movimiento registrado ✓');
+  };
+  try {
+    await sb.insert('movimientos', mov);
+    DB.movimientos.unshift(mov);
+    closeModal('modal-movimiento');
+    renderMovimientos();
+    showAlert('Movimiento registrado ✓');
+  } catch(e) { showAlert('Error guardando movimiento', 'danger'); }
 }
 
 function renderMovimientos() {
@@ -1747,8 +1813,8 @@ function renderMovimientos() {
 
 function eliminarMovimiento(id) {
   if (!confirm('¿Eliminar este movimiento?')) return;
+  await sb.delete('movimientos', id);
   DB.movimientos = DB.movimientos.filter(m => m.id !== id);
-  saveDB();
   renderMovimientos();
 }
 
@@ -1905,7 +1971,11 @@ function importarCSV(tipo, input) {
       }
     });
 
-    saveDB();
+    // Insert all to Supabase
+    const insertPromises = tipo === 'clientes'
+      ? DB.clientes.slice(-count).map(c => sb.insert('clientes', {id:c.id,nombre:c.nombre,apellido:c.apellido,dni:c.dni,telefono:c.telefono,domicilio:c.domicilio,ciudad:c.ciudad,provincia:c.provincia}))
+      : DB.productos.slice(-count).map(p => sb.insert('productos', {id:p.id,nombre:p.nombre,medida:p.medida,tela:p.tela,color:p.color,costo:p.costo,venta:p.venta,stock:p.stock,estado:p.estado}));
+    await Promise.all(insertPromises);
     renderClientes();
     renderProductos();
     updateDashboard();
@@ -1965,9 +2035,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
 });
 
 // ===================== INIT =====================
-loadDB();
-updateDashboard();
 document.getElementById('m-fecha').value = new Date().toISOString().split('T')[0];
+loadDB(); // async - carga desde Supabase
 </script>
 </body>
 </html>
